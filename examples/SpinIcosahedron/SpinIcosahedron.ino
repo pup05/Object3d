@@ -11,9 +11,10 @@
 #define kMatrixWidth  32
 #define kMatrixHeight 32
 
-
 #define NUM_LEDS (kMatrixWidth * kMatrixHeight)
 #define DEFAULT_BRIGHTNESS 255
+
+SmartMatrix matrix;
 
 CRGB leds[kMatrixWidth * kMatrixHeight];
 
@@ -58,13 +59,13 @@ void drawMesh(int Hue) {
     if(MESH_WIREFRAME) { 
       V = map(Icosa.depthMap[i].depth,Icosa.minDepth,Icosa.maxDepth,100,255);
       // replace this next line with your triangle drawing function
-        pSmartMatrix->drawTriangle(ax,ay,bx,by,cx,cy, CRGB(CHSV(baseHue,255,V)));
+        matrix.drawTriangle(ax,ay,bx,by,cx,cy, CRGB(CHSV(baseHue,255,V)));
         baseHue +=10;
     } else { 
       V = map(Icosa.depthMap[i].depth,Icosa.minDepth,Icosa.maxDepth,-100,255); // larger "range" as back faces won't be drawn
       V = constrain(V,0,255); // prevents flashing edges.
       // replace this next line with your triangle drawing function 
-      pSmartMatrix->fillTriangle(ax,ay,bx,by,cx,cy, CRGB(CHSV(baseHue,255,V)));
+      matrix.fillTriangle(ax,ay,bx,by,cx,cy, CRGB(CHSV(baseHue,255,V)));
       baseHue +=10;
     }      
   }
@@ -72,7 +73,7 @@ void drawMesh(int Hue) {
 
 void drawIcosahedron() { 
   // clear the screen
-  pSmartMatrix->fillScreen(CRGB(0,0,0));
+  matrix.fillScreen(CRGB(0,0,0));
   transformMesh();
   drawMesh(cubeHue);
   cubeHue++;
@@ -80,15 +81,15 @@ void drawIcosahedron() {
 }
 
 void setup() { 
-  LEDS.addLeds<SmartMatrix>(leds,NUM_LEDS);
-  LEDS.setBrightness(DEFAULT_BRIGHTNESS);
-  pSmartMatrix->setColorCorrection(cc24);
+  matrix.begin();
+  matrix.setBrightness(255);
+  matrix.setColorCorrection(cc24);
   Icosa.loadMesh(icosahedron_v, icosahedron_f); 
 }
 
 void loop() { 
   if(millis() >= nextFrame) { 
     drawIcosahedron();
-    LEDS.show();
+    matrix.swapBuffers(false);
   }
 }
